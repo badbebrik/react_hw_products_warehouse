@@ -1,0 +1,115 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 100%;
+  background-color: #ffffff;
+  overflow-x: hidden;
+  transition: width 0.3s ease;
+  z-index: 1000;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.open {
+  width: 320px;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 20px;
+  right: 0px;
+  color: #ff6f61;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.sidebar-content {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding: 20px;
+  margin-top: 50px;
+}
+
+.sidebar.open .sidebar-content {
+  opacity: 1;
+}
+
+.sidebar-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.sidebar-input,
+.sidebar-select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.sidebar-input::placeholder {
+  color: #aaa;
+}
+
+.sidebar-input:focus,
+.sidebar-select:focus {
+  border-color: #ff6f61;
+  outline: none;
+}
+
+.sidebar-filter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.sidebar-filter input {
+  margin-right: 10px;
+  accent-color: #ff6f61;
+}
+
+.sidebar-filter label {
+  font-size: 16px;
+  margin: 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  white-space: nowrap;
+}
+
+.sidebar-apply-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #ff6f61;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.sidebar-apply-button:hover {
+  background-color: #ff8a75;
+}
+
+.sidebar-select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.sidebar-select {
+  position: relative;
+}
