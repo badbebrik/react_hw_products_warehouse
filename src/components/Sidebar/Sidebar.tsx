@@ -1,40 +1,131 @@
-import React, { FC } from "react";
-import { FaChevronRight, FaChevronLeft } from "react-icons/fa";
-import "./Sidebar.css";
+import React, { FC, useState } from "react";
+import {
+  Drawer,
+  Box,
+  Typography,
+  TextField,
+  Checkbox,
+  FormControlLabel,
+  Select,
+  MenuItem,
+  Button,
+  IconButton,
+  Stack,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import CloseIcon from "@mui/icons-material/Close";
+import { SelectChangeEvent } from "@mui/material/Select";
 
 interface SidebarProps {
   isOpen: boolean;
-  onToggle: () => void;
+  onClose: () => void;
+  categories: string[];
+  onApplyFilters: (filters: Filters) => void;
 }
 
-const Sidebar: FC<SidebarProps> = ({ isOpen, onToggle }) => {
+export interface Filters {
+  name: string;
+  inStock: boolean;
+  category: string;
+}
+
+const DrawerHeader = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(0, 1),
+  justifyContent: "space-between",
+  ...theme.mixins.toolbar,
+}));
+
+const Sidebar: FC<SidebarProps> = ({ isOpen, onClose, categories, onApplyFilters }) => {
+  const [filters, setFilters] = useState<Filters>({
+    name: "",
+    inStock: false,
+    category: "",
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters({ ...filters, name: e.target.value });
+  };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters({ ...filters, inStock: e.target.checked });
+  };
+
+  const handleSelectChange = (e: SelectChangeEvent<string>) => {
+    setFilters({ ...filters, category: e.target.value });
+  };
+
+  const handleApply = () => {
+    onApplyFilters(filters);
+    onClose();
+  };
+
+  const handleReset = () => {
+    const resetFilters: Filters = { name: "", inStock: false, category: "" };
+    setFilters(resetFilters);
+    onApplyFilters(resetFilters);
+  };
+
   return (
-    <div className={`sidebar ${isOpen ? "open" : "closed"}`}>
-      <div className="sidebar-toggle" onClick={onToggle}>
-        {isOpen ? <FaChevronLeft /> : <FaChevronRight />}
-      </div>
-      <div className="sidebar-content">
-        <h2 className="sidebar-title">Фильтры</h2>
-        <input
-          type="text"
-          placeholder="Поиск..."
-          className="sidebar-input"
-          aria-label="Поиск"
-        />
-        <div className="sidebar-filter">
-          <input type="checkbox" id="filter" />
-          <label htmlFor="filter">В наличии</label>
-        </div>
-        <select className="sidebar-select" aria-label="Категория">
-          <option value="">Выберите категорию</option>
-          <option value="Нижнее белье">Нижнее белье</option>
-          <option value="Игрушки">Игрушки</option>
-          <option value="Настольные игры">Настольные игры</option>
-          <option value="Цифровые товары">Цифровые товары</option>
-        </select>
-        <button className="sidebar-apply-button">Применить</button>
-      </div>
-    </div>
+    <Drawer anchor="left" open={isOpen} onClose={onClose}>
+      <Box sx={{ width: 320, p: 3 }}>
+        <DrawerHeader>
+          <Typography variant="h6">Фильтры</Typography>
+          <IconButton onClick={onClose} aria-label="Закрыть фильтры">
+            <CloseIcon />
+          </IconButton>
+        </DrawerHeader>
+        <Stack spacing={2} mt={2}>
+          <TextField
+            label="Название товара"
+            variant="outlined"
+            value={filters.name}
+            onChange={handleInputChange}
+            placeholder="Введите название"
+            fullWidth
+          />
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.inStock}
+                onChange={handleCheckboxChange}
+                color="primary"
+              />
+            }
+            label="В наличии"
+          />
+
+          <Select
+            value={filters.category}
+            onChange={handleSelectChange}
+            displayEmpty
+            fullWidth
+            variant="outlined"
+            inputProps={{ "aria-label": "Категория товара" }}
+          >
+            <MenuItem value="">
+              <em>Все категории</em>
+            </MenuItem>
+            {categories.map((cat) => (
+              <MenuItem key={cat} value={cat}>
+                {cat}
+              </MenuItem>
+            ))}
+          </Select>
+
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" color="primary" onClick={handleApply} fullWidth>
+              Применить
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={handleReset} fullWidth>
+              Сбросить
+            </Button>
+          </Stack>
+        </Stack>
+      </Box>
+    </Drawer>
   );
 };
 

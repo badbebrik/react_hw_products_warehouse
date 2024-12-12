@@ -1,80 +1,75 @@
-import React, { FC, useEffect } from "react";
-import { FaTimes } from "react-icons/fa";
-import { FaBoxOpen } from "react-icons/fa";
-import "./ProductModal.css";
+import React, { FC } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Typography,
+  Box,
+} from "@mui/material";
+import { Product } from "../../types/Product";
 
 interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  name: string;
-  description?: string;
-  category?: string;
-  quantity: number;
-  unit: string;
-  imageUrl?: string;
+  product: Product;
 }
 
-const ProductModal: FC<ProductModalProps> = ({
-  isOpen,
-  onClose,
-  name,
-  description,
-  category,
-  quantity,
-  unit,
-  imageUrl,
-}) => {
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-    if (isOpen) {
-      window.addEventListener("keydown", handleEsc);
-    }
-    return () => {
-      window.removeEventListener("keydown", handleEsc);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
+const ProductModal: FC<ProductModalProps> = ({ isOpen, onClose, product }) => {
+  const { name, description, category, quantity, unit, imageUrl } = product;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-content"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-      >
-        <button className="modal-close" onClick={onClose} aria-label="Закрыть">
-          <FaTimes />
-        </button>
-        <div className="modal-body">
-          <div className="modal-image-container">
-            {imageUrl ? (
-              <img src={imageUrl} alt={name} className="modal-image" />
-            ) : (
-              <div className="modal-no-image">
-                <FaBoxOpen size={64} color="#ccc" />
-                <p>Нет изображения</p>
-              </div>
-            )}
-          </div>
-          <div className="modal-info">
-            <h2 className="modal-title">{name}</h2>
-            {description && <p className="modal-description">{description}</p>}
-            {category && (
-              <p className="modal-category">Категория: {category}</p>
-            )}
-            <p className="modal-quantity">
-              Количество: {quantity} {unit}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>{name}</DialogTitle>
+      <DialogContent dividers>
+        <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={2}>
+          {imageUrl ? (
+            <Box flex={1}>
+              <img
+                src={imageUrl}
+                alt={name}
+                style={{ width: "100%", height: "auto", objectFit: "contain" }}
+              />
+            </Box>
+          ) : (
+            <Box
+              flex={1}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              bgcolor="#f0f0f0"
+              height={200}
+            >
+              <Typography variant="h6" color="text.secondary">
+                Нет изображения
+              </Typography>
+            </Box>
+          )}
+          <Box flex={2}>
+            <Typography variant="subtitle1" gutterBottom>
+              Описание:
+            </Typography>
+            <Typography variant="body1" paragraph>
+              {description || "Нет описания."}
+            </Typography>
+            <Typography variant="subtitle1">Категория:</Typography>
+            <Typography variant="body1" paragraph>
+              {category || "Не указано"}
+            </Typography>
+            <Typography variant="subtitle1">Количество:</Typography>
+            <Typography variant="body1">
+              {quantity} {unit}
+            </Typography>
+          </Box>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary" variant="contained">
+          Закрыть
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 
