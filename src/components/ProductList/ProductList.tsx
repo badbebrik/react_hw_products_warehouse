@@ -1,9 +1,7 @@
-import React, { FC, useState, useMemo } from "react";
+import React, { FC, useState, useRef, useCallback, useEffect } from "react";
 import {
   Grid,
   Box,
-  Pagination,
-  Stack,
   Typography,
 } from "@mui/material";
 import ProductCard from "../ProductCard/ProductCard";
@@ -14,11 +12,58 @@ interface ProductListProps {
   products: Product[];
 }
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_LOAD = 6;
 
 const ProductList: FC<ProductListProps> = ({ products }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastProductElementRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setVisibleProducts(products.slice(0, ITEMS_PER_LOAD));
+    setHasMore(products.length > ITEMS_PER_LOAD);
+  }, [products]);
+
+  const loadMoreProducts = useCallback(() => {
+    const currentLength = visibleProducts.length;
+    const isMore = currentLength < products.length;
+    const nextResults = isMore
+      ? products.slice(currentLength, currentLength + ITEMS_PER_LOAD)
+      : [];
+    setVisibleProducts((prev) => [...prev, ...nextResults]);
+    setHasMore(currentLength + nextResults.length < products.length);
+  }, [visibleProducts.length, products]);
+
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const target = entries[0];
+      if (target.isIntersecting && hasMore) {
+        loadMoreProducts();
+      }
+    },
+    [loadMoreProducts, hasMore]
+  );
+
+  useEffect(() => {
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "20px",
+      threshold: 1.0, 
+    });
+
+    if (lastProductElementRef.current) {
+      observer.current.observe(lastProductElementRef.current);
+    }
+
+    return () => {
+      if (observer.current) observer.current.disconnect();
+    };
+  }, [handleObserver, visibleProducts]);
 
   const handleCardClick = (product: Product) => {
     setSelectedProduct(product);
@@ -26,17 +71,6 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
 
   const handleCloseModal = () => {
     setSelectedProduct(null);
-  };
-
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return products.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [products, currentPage]);
-
-  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
-
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setCurrentPage(value);
   };
 
   if (products.length === 0) {
@@ -52,26 +86,47 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
   return (
     <Box>
       <Grid container spacing={3}>
-        {paginatedProducts.map((product) => (
-          <Grid item key={product.id} xs={12} sm={6} md={4}>
-            <ProductCard
-              product={product}
-              onClick={() => handleCardClick(product)}
-            />
-          </Grid>
-        ))}
+        {visibleProducts.map((product, index) => {
+          if (index === visibleProducts.length - 1) {
+            return (
+              <Grid
+                item
+                key={product.id}
+                xs={12}
+                sm={6}
+                md={4}
+                ref={lastProductElementRef}
+              >
+                <ProductCard
+                  product={product}
+                  onClick={() => handleCardClick(product)}
+                />
+              </Grid>
+            );
+          } else {
+            return (
+              <Grid
+                item
+                key={product.id}
+                xs={12}
+                sm={6}
+                md={4}
+              >
+                <ProductCard
+                  product={product}
+                  onClick={() => handleCardClick(product)}
+                />
+              </Grid>
+            );
+          }
+        })}
       </Grid>
 
-      <Stack spacing={2} mt={4} alignItems="center">
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={handlePageChange}
-          color="primary"
-          variant="outlined"
-          shape="rounded"
-        />
-      </Stack>
+      {hasMore && (
+        <Box textAlign="center" mt={2}>
+          <Typography variant="body1">Загрузка...</Typography>
+        </Box>
+      )}
 
       {selectedProduct && (
         <ProductModal
