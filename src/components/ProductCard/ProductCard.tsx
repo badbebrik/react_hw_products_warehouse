@@ -1,57 +1,99 @@
 import React, { FC } from "react";
-import { FaBoxOpen } from "react-icons/fa";
-import "./ProductCard.css";
+import {
+  Card,
+  CardHeader,
+  CardMedia,
+  CardContent,
+  Typography,
+  Tooltip,
+  styled,
+} from "@mui/material";
+import { Product } from "../../types/Product";
 
 interface ProductCardProps {
-  name: string;
-  description?: string;
-  category?: string;
-  quantity: number;
-  unit: string;
-  imageUrl?: string;
+  product: Product;
   onClick: () => void;
 }
 
-const ProductCard: FC<ProductCardProps> = ({
-  name,
-  description,
-  category,
-  quantity,
-  unit,
-  imageUrl,
-  onClick,
-}) => {
+const StyledCard = styled(Card)(({ theme }) => ({
+  transition: "transform 0.3s, box-shadow 0.3s",
+  "&:hover": {
+    transform: "scale(1.05)",
+    boxShadow: theme.shadows[6],
+  },
+  cursor: "pointer",
+}));
+
+const ProductCard: FC<ProductCardProps> = ({ product, onClick }) => {
+  const { name, description, category, quantity, unit, imageUrl } = product;
+
   return (
-    <div className="product-card" onClick={onClick}>
-      <div
-        className={`product-card__image ${
-          imageUrl
-            ? "product-card__image--has-image"
-            : "product-card__image--no-image"
-        }`}
-      >
+    <Tooltip title={description || "Нет описания"} arrow>
+      <StyledCard onClick={onClick}>
+        <CardHeader
+          title={name}
+          subheader={category}
+          titleTypographyProps={{ variant: "h6", noWrap: true }}
+          subheaderTypographyProps={{
+            variant: "subtitle2",
+            color: "text.secondary",
+          }}
+          sx={{
+            "& .MuiCardHeader-title": {
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            },
+            "& .MuiCardHeader-subheader": {
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            },
+          }}
+        />
         {imageUrl ? (
-          <img src={imageUrl} alt={name} />
+          <CardMedia
+            component="img"
+            height="180"
+            image={imageUrl}
+            alt={name}
+            sx={{ objectFit: "contain", backgroundColor: "#f9fafb" }}
+          />
         ) : (
-          <div className="product-card__no-image">
-            <FaBoxOpen size={48} color="#ccc" />
-            <p>Нет изображения</p>
-          </div>
+          <CardContent
+            sx={{
+              height: 180,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#f0f0f0",
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              Нет изображения
+            </Typography>
+          </CardContent>
         )}
-      </div>
-      <div className="product-card__info">
-        <h3 className="product-card__name">{name}</h3>
-        {description && (
-          <p className="product-card__description">{description}</p>
-        )}
-        {category && (
-          <p className="product-card__category">Категория: {category}</p>
-        )}
-        <p className="product-card__quantity">
-          Количество: {quantity} {unit}
-        </p>
-      </div>
-    </div>
+        <CardContent>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              display: "-webkit-box",
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {description}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mt={1}>
+            Количество: {quantity} {unit}
+          </Typography>
+        </CardContent>
+      </StyledCard>
+    </Tooltip>
   );
 };
 
