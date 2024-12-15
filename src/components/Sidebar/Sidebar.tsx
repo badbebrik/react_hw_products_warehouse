@@ -11,9 +11,11 @@ import {
   Button,
   IconButton,
   Stack,
+  InputAdornment,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { SelectChangeEvent } from "@mui/material/Select";
 
 interface SidebarProps {
@@ -38,11 +40,7 @@ const DrawerHeader = styled(Box)(({ theme }) => ({
 }));
 
 const Sidebar: FC<SidebarProps> = ({ isOpen, onClose, categories, onApplyFilters }) => {
-  const [filters, setFilters] = useState<Filters>({
-    name: "",
-    inStock: false,
-    category: "",
-  });
+  const [filters, setFilters] = useState<Filters>({ name: "", inStock: false, category: "" });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters({ ...filters, name: e.target.value });
@@ -54,6 +52,10 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose, categories, onApplyFilters
 
   const handleSelectChange = (e: SelectChangeEvent<string>) => {
     setFilters({ ...filters, category: e.target.value });
+  };
+
+  const handleClearName = () => {
+    setFilters({ ...filters, name: "" });
   };
 
   const handleApply = () => {
@@ -84,8 +86,16 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose, categories, onApplyFilters
             onChange={handleInputChange}
             placeholder="Введите название"
             fullWidth
+            InputProps={{
+              endAdornment: filters.name && (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleClearName} aria-label="Очистить название">
+                    <CloseIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
-
           <FormControlLabel
             control={
               <Checkbox
@@ -96,7 +106,6 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose, categories, onApplyFilters
             }
             label="В наличии"
           />
-
           <Select
             value={filters.category}
             onChange={handleSelectChange}
@@ -104,6 +113,29 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose, categories, onApplyFilters
             fullWidth
             variant="outlined"
             inputProps={{ "aria-label": "Категория товара" }}
+            IconComponent={ArrowDropDownIcon}
+            renderValue={(selected) => {
+              if (!selected) {
+                return <em>Все категории</em>;
+              }
+              return (
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Box>{selected}</Box>
+                  <IconButton
+                    size="small"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFilters({ ...filters, category: "" });
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              );
+            }}
           >
             <MenuItem value="">
               <em>Все категории</em>
@@ -114,7 +146,6 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose, categories, onApplyFilters
               </MenuItem>
             ))}
           </Select>
-
           <Stack direction="row" spacing={2}>
             <Button variant="contained" color="primary" onClick={handleApply} fullWidth>
               Применить

@@ -15,14 +15,31 @@ interface ProductModalProps {
   onClose: () => void;
   product: Product;
 }
-
+/* 
+  В задании было написано, что желательно объяснить выбор между Dialog и Modal.
+  Я выбрала Dialog. Dialog реализован поверх Modal и из коробки предоставляет готовые
+  компоненты и стили, засчет этого не нужно заморачиваться, кастомизировать и это увеличивает скорость разработки,
+  ну и все смотрится как-то органично и консистентно
+*/
 const ProductModal: FC<ProductModalProps> = ({ isOpen, onClose, product }) => {
   const { name, description, category, quantity, unit, imageUrl } = product;
 
   return (
-    <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        style: {
+          height: '60vh',
+          width: '70vw',
+          maxWidth: 'none'
+        },
+      }}
+    >
       <DialogTitle>{name}</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent dividers sx={{ overflowY: 'auto' }}>
         <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={2}>
           {imageUrl ? (
             <Box flex={1}>

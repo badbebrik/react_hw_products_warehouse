@@ -3,7 +3,9 @@ import {
   Grid,
   Box,
   Typography,
+  CircularProgress,
 } from "@mui/material";
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ProductCard from "../ProductCard/ProductCard";
 import ProductModal from "../ProductModal/ProductModal";
 import { Product } from "../../types/Product";
@@ -18,6 +20,7 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const observer = useRef<IntersectionObserver | null>(null);
   const lastProductElementRef = useRef<HTMLDivElement | null>(null);
@@ -28,14 +31,20 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
   }, [products]);
 
   const loadMoreProducts = useCallback(() => {
+    if (isLoading) return;
+    setIsLoading(true);
     const currentLength = visibleProducts.length;
     const isMore = currentLength < products.length;
     const nextResults = isMore
       ? products.slice(currentLength, currentLength + ITEMS_PER_LOAD)
       : [];
-    setVisibleProducts((prev) => [...prev, ...nextResults]);
-    setHasMore(currentLength + nextResults.length < products.length);
-  }, [visibleProducts.length, products]);
+
+    setTimeout(() => {
+      setVisibleProducts((prev) => [...prev, ...nextResults]);
+      setHasMore(currentLength + nextResults.length < products.length);
+      setIsLoading(false);
+    }, 500);
+  }, [visibleProducts.length, products, isLoading]);
 
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -51,9 +60,9 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
     if (observer.current) observer.current.disconnect();
 
     observer.current = new IntersectionObserver(handleObserver, {
-      root: null,
+      root: null, 
       rootMargin: "20px",
-      threshold: 1.0, 
+      threshold: 1.0,
     });
 
     if (lastProductElementRef.current) {
@@ -86,45 +95,49 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
   return (
     <Box>
       <Grid container spacing={3}>
-        {visibleProducts.map((product, index) => {
-          if (index === visibleProducts.length - 1) {
-            return (
-              <Grid
-                item
-                key={product.id}
-                xs={12}
-                sm={6}
-                md={4}
-                ref={lastProductElementRef}
-              >
-                <ProductCard
-                  product={product}
-                  onClick={() => handleCardClick(product)}
-                />
-              </Grid>
-            );
-          } else {
-            return (
-              <Grid
-                item
-                key={product.id}
-                xs={12}
-                sm={6}
-                md={4}
-              >
-                <ProductCard
-                  product={product}
-                  onClick={() => handleCardClick(product)}
-                />
-              </Grid>
-            );
-          }
-        })}
+        <TransitionGroup component={null}>
+          {visibleProducts.map((product, index) => {
+            if (index === visibleProducts.length - 1) {
+              return (
+                <CSSTransition key={product.id} timeout={500} classNames="fade">
+                  <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={4}
+                    ref={lastProductElementRef}
+                  >
+                    <ProductCard
+                      product={product}
+                      onClick={() => handleCardClick(product)}
+                    />
+                  </Grid>
+                </CSSTransition>
+              );
+            } else {
+              return (
+                <CSSTransition key={product.id} timeout={500} classNames="fade">
+                  <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={4}
+                  >
+                    <ProductCard
+                      product={product}
+                      onClick={() => handleCardClick(product)}
+                    />
+                  </Grid>
+                </CSSTransition>
+              );
+            }
+          })}
+        </TransitionGroup>
       </Grid>
 
-      {hasMore && (
+      {isLoading && (
         <Box textAlign="center" mt={2}>
-          <Typography variant="body1">Загрузка...</Typography>
+          <CircularProgress />
         </Box>
       )}
 
