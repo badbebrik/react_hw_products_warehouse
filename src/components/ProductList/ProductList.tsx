@@ -1,11 +1,6 @@
 import React, { FC, useState, useRef, useCallback, useEffect } from "react";
-import {
-  Grid,
-  Box,
-  Typography,
-  CircularProgress,
-} from "@mui/material";
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { Grid, Box, Typography, CircularProgress } from "@mui/material";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import ProductCard from "../ProductCard/ProductCard";
 import ProductModal from "../ProductModal/ProductModal";
 import { Product } from "../../types/Product";
@@ -60,7 +55,7 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
     if (observer.current) observer.current.disconnect();
 
     observer.current = new IntersectionObserver(handleObserver, {
-      root: null, 
+      root: null,
       rootMargin: "20px",
       threshold: 1.0,
     });
@@ -100,13 +95,7 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
             if (index === visibleProducts.length - 1) {
               return (
                 <CSSTransition key={product.id} timeout={500} classNames="fade">
-                  <Grid
-                    item
-                    xs={12}
-                    sm={6}
-                    md={4}
-                    ref={lastProductElementRef}
-                  >
+                  <Grid item xs={12} sm={6} md={4} ref={lastProductElementRef}>
                     <ProductCard
                       product={product}
                       onClick={() => handleCardClick(product)}
@@ -117,12 +106,7 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
             } else {
               return (
                 <CSSTransition key={product.id} timeout={500} classNames="fade">
-                  <Grid
-                    item
-                    xs={12}
-                    sm={6}
-                    md={4}
-                  >
+                  <Grid item xs={12} sm={6} md={4}>
                     <ProductCard
                       product={product}
                       onClick={() => handleCardClick(product)}

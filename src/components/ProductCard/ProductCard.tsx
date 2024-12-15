@@ -34,7 +34,10 @@ const ProductCard: FC<ProductCardProps> = ({ product, onClick }) => {
           title={name}
           subheader={category}
           titleTypographyProps={{ variant: "h6", noWrap: true }}
-          subheaderTypographyProps={{ variant: "subtitle2", color: "text.secondary" }}
+          subheaderTypographyProps={{
+            variant: "subtitle2",
+            color: "text.secondary",
+          }}
           sx={{
             "& .MuiCardHeader-title": {
               overflow: "hidden",

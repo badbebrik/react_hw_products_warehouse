@@ -32,14 +32,14 @@ const ProductModal: FC<ProductModalProps> = ({ isOpen, onClose, product }) => {
       fullWidth
       PaperProps={{
         style: {
-          height: '60vh',
-          width: '70vw',
-          maxWidth: 'none'
+          height: "60vh",
+          width: "70vw",
+          maxWidth: "none",
         },
       }}
     >
       <DialogTitle>{name}</DialogTitle>
-      <DialogContent dividers sx={{ overflowY: 'auto' }}>
+      <DialogContent dividers sx={{ overflowY: "auto" }}>
         <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={2}>
           {imageUrl ? (
             <Box flex={1}>
