@@ -9,6 +9,8 @@ import {
   Box,
 } from "@mui/material";
 import { Product } from "../../types/Product";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -22,7 +24,12 @@ interface ProductModalProps {
   ну и все смотрится как-то органично и консистентно
 */
 const ProductModal: FC<ProductModalProps> = ({ isOpen, onClose, product }) => {
-  const { name, description, category, quantity, unit, imageUrl } = product;
+  const { name, description, quantity, unit, imageUrl, categoryId } = product;
+  const categories = useSelector(
+    (state: RootState) => state.categories.categories
+  );
+  const categoryName =
+    categories.find((cat) => cat.id === categoryId)?.name || "Не указано";
 
   return (
     <Dialog
@@ -72,7 +79,7 @@ const ProductModal: FC<ProductModalProps> = ({ isOpen, onClose, product }) => {
             </Typography>
             <Typography variant="subtitle1">Категория:</Typography>
             <Typography variant="body1" paragraph>
-              {category || "Не указано"}
+              {categoryName}
             </Typography>
             <Typography variant="subtitle1">Количество:</Typography>
             <Typography variant="body1">

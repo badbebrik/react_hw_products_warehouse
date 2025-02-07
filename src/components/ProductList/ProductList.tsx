@@ -2,8 +2,8 @@ import React, { FC, useState, useRef, useCallback, useEffect } from "react";
 import { Grid, Box, Typography, CircularProgress } from "@mui/material";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import ProductCard from "../ProductCard/ProductCard";
-import ProductModal from "../ProductModal/ProductModal";
 import { Product } from "../../types/Product";
+import { useNavigate } from "react-router-dom";
 
 interface ProductListProps {
   products: Product[];
@@ -12,7 +12,7 @@ interface ProductListProps {
 const ITEMS_PER_LOAD = 6;
 
 const ProductList: FC<ProductListProps> = ({ products }) => {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const navigate = useNavigate();
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -70,11 +70,7 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
   }, [handleObserver, visibleProducts]);
 
   const handleCardClick = (product: Product) => {
-    setSelectedProduct(product);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedProduct(null);
+    navigate(`/products/${product.id}`);
   };
 
   if (products.length === 0) {
@@ -123,14 +119,6 @@ const ProductList: FC<ProductListProps> = ({ products }) => {
         <Box textAlign="center" mt={2}>
           <CircularProgress />
         </Box>
-      )}
-
-      {selectedProduct && (
-        <ProductModal
-          isOpen={Boolean(selectedProduct)}
-          onClose={handleCloseModal}
-          product={selectedProduct}
-        />
       )}
     </Box>
   );

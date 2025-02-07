@@ -17,18 +17,19 @@ import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { SelectChangeEvent } from "@mui/material/Select";
-
-interface SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-  categories: string[];
-  onApplyFilters: (filters: Filters) => void;
-}
+import { Category } from "../../types/Category";
 
 export interface Filters {
   name: string;
   inStock: boolean;
-  category: string;
+  category: number | "";
+}
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  categories: Category[];
+  onApplyFilters: (filters: Filters) => void;
 }
 
 const DrawerHeader = styled(Box)(({ theme }) => ({
@@ -59,8 +60,8 @@ const Sidebar: FC<SidebarProps> = ({
     setFilters({ ...filters, inStock: e.target.checked });
   };
 
-  const handleSelectChange = (e: SelectChangeEvent<string>) => {
-    setFilters({ ...filters, category: e.target.value });
+  const handleSelectChange = (e: SelectChangeEvent<number | "">) => {
+    setFilters({ ...filters, category: e.target.value as number | "" });
   };
 
   const handleClearName = () => {
@@ -124,40 +125,44 @@ const Sidebar: FC<SidebarProps> = ({
             inputProps={{ "aria-label": "Категория товара" }}
             IconComponent={ArrowDropDownIcon}
             renderValue={(selected) => {
-              if (!selected) {
+              if (selected === 0) {
                 return <em>Все категории</em>;
-              }
-              return (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Box>{selected}</Box>
-                  <IconButton
-                    size="small"
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setFilters({ ...filters, category: "" });
+              } else {
+                const selectedCategory = categories.find(
+                  (cat) => cat.id === selected
+                );
+                return (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
                     }}
                   >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              );
+                    <Box>{selectedCategory ? selectedCategory.name : selected}</Box>
+                    <IconButton
+                      size="small"
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setFilters({ ...filters, category: "" });
+                      }}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                );
+              }
             }}
           >
             <MenuItem value="">
               <em>Все категории</em>
             </MenuItem>
             {categories.map((cat) => (
-              <MenuItem key={cat} value={cat}>
-                {cat}
+              <MenuItem key={cat.id} value={cat.id}>
+                {cat.name}
               </MenuItem>
             ))}
           </Select>

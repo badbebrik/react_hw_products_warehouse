@@ -7,8 +7,11 @@ import {
   Typography,
   Tooltip,
   styled,
+  Box,
 } from "@mui/material";
 import { Product } from "../../types/Product";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 interface ProductCardProps {
   product: Product;
@@ -24,15 +27,22 @@ const StyledCard = styled(Card)(({ theme }) => ({
   cursor: "pointer",
 }));
 
+const IMAGE_HEIGHT = 180;
+
 const ProductCard: FC<ProductCardProps> = ({ product, onClick }) => {
-  const { name, description, category, quantity, unit, imageUrl } = product;
+  const { name, description, quantity, unit, imageUrl, categoryId } = product;
+  const categories = useSelector(
+    (state: RootState) => state.categories.categories
+  );
+  const categoryName =
+    categories.find((cat) => cat.id === categoryId)?.name || "Не указано";
 
   return (
     <Tooltip title={description || "Нет описания"} arrow>
       <StyledCard onClick={onClick}>
         <CardHeader
           title={name}
-          subheader={category}
+          subheader={categoryName}
           titleTypographyProps={{ variant: "h6", noWrap: true }}
           subheaderTypographyProps={{
             variant: "subtitle2",
@@ -54,15 +64,18 @@ const ProductCard: FC<ProductCardProps> = ({ product, onClick }) => {
         {imageUrl ? (
           <CardMedia
             component="img"
-            height="180"
             image={imageUrl}
             alt={name}
-            sx={{ objectFit: "contain", backgroundColor: "#f9fafb" }}
+            sx={{
+              height: IMAGE_HEIGHT,
+              objectFit: "contain",
+              backgroundColor: "#f9fafb",
+            }}
           />
         ) : (
-          <CardContent
+          <Box
             sx={{
-              height: 180,
+              height: IMAGE_HEIGHT,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -72,7 +85,7 @@ const ProductCard: FC<ProductCardProps> = ({ product, onClick }) => {
             <Typography variant="body2" color="text.secondary">
               Нет изображения
             </Typography>
-          </CardContent>
+          </Box>
         )}
         <CardContent>
           <Typography
